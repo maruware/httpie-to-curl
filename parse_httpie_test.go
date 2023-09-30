@@ -123,6 +123,64 @@ func TestParseHttpie(t *testing.T) {
 			},
 		},
 		{
+			desc: "json non-string float field",
+			args: []string{"http", "post", "http://example.com", "foo:=1.2"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Json: map[string]any{
+					"foo": 1.2,
+				},
+				Headers: []Header{
+					{Key: "Content-Type", Value: "application/json"},
+				},
+			},
+		},
+		{
+			desc: "json non-string array field",
+			args: []string{"http", "post", "http://example.com", "foo:=[1,2,3]"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Json: map[string]any{
+					"foo": []any{float64(1), float64(2), float64(3)},
+				},
+				Headers: []Header{
+					{Key: "Content-Type", Value: "application/json"},
+				},
+			},
+		},
+		{
+			desc: "json non-string object field",
+			args: []string{"http", "post", "http://example.com", "foo:={\"bar\":1}"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Json: map[string]any{
+					"foo": map[string]any{
+						"bar": float64(1),
+					},
+				},
+				Headers: []Header{
+					{Key: "Content-Type", Value: "application/json"},
+				},
+			},
+		},
+		{
+			desc: "json non-string bool field",
+			args: []string{"http", "post", "http://example.com", "foo:=true"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Json: map[string]any{
+					"foo": true,
+				},
+				Headers: []Header{
+					{Key: "Content-Type", Value: "application/json"},
+				},
+			},
+		},
+		{
 			desc: "query",
 			args: []string{"http", "post", "http://example.com", "foo==bar"},
 			want: Request{
