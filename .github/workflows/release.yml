@@ -8,6 +8,9 @@ on:
           Set 'major', 'minor' or 'patch'.
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: Release
