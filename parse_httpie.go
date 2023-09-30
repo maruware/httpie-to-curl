@@ -10,8 +10,8 @@ import (
 // regexp pattern for header
 var headerPattern = regexp.MustCompile(`(?P<key>[^:]+):\s*(?P<value>.*)`)
 
-// json string field pattern. e.g. "foo=bar baz"
-var jsonFieldPattern = regexp.MustCompile(`(?P<key>[^=]+)=(?P<value>.*)`)
+// json/form string field pattern. e.g. "foo=bar baz"
+var dataFieldPattern = regexp.MustCompile(`(?P<key>[^=]+)=(?P<value>.*)`)
 
 // json non-string field pattern. e.g. age:=29, married:=false, hobbies:='["http", "pies"]', favorite:='{"tool": "HTTPie"}', bookmarks:=@files/data.json, description=@files/text.txt
 var jsonNonStringFieldPattern = regexp.MustCompile(`(?P<key>[^:]+):=(?P<value>.*)`)
@@ -22,13 +22,18 @@ var queryPattern = regexp.MustCompile(`(?P<key>[^=]+)==(?P<value>.*)`)
 // parse httpie args
 func ParseHttpie(args []string) Request {
 	r := Request{}
+	isForm := false
+
 	for _, arg := range args {
 		if arg == "http" {
 			continue
 		}
-		upper := strings.ToUpper(arg)
-		if upper == "GET" || upper == "POST" || upper == "PUT" || upper == "PATCH" || upper == "DELETE" {
-			r.Method = upper
+		if arg == "-f" || arg == "--form" {
+			isForm = true
+			continue
+		}
+		if m := parseMethod(arg); m != "" {
+			r.Method = m
 			continue
 		}
 		if strings.HasPrefix(arg, "http://") || strings.HasPrefix(arg, "https://") {
@@ -54,12 +59,21 @@ func ParseHttpie(args []string) Request {
 			continue
 		}
 
-		if jsonFieldPattern.Match([]byte(arg)) {
-			if r.Json == nil {
-				r.Json = map[string]any{}
+		if dataFieldPattern.Match([]byte(arg)) {
+			matches := dataFieldPattern.FindStringSubmatch(arg)
+
+			if isForm {
+				if r.Forms == nil {
+					r.Forms = []Form{}
+				}
+				r.Forms = append(r.Forms, Form{Key: matches[1], Value: matches[2]})
+			} else {
+				if r.Json == nil {
+					r.Json = map[string]any{}
+				}
+				r.Json[matches[1]] = matches[2]
 			}
-			matches := jsonFieldPattern.FindStringSubmatch(arg)
-			r.Json[matches[1]] = matches[2]
+
 			continue
 		}
 
@@ -106,4 +120,12 @@ func parseJsonNonStringValue(s string) interface{} {
 
 	// otherwise
 	return s
+}
+
+func parseMethod(s string) string {
+	m := strings.ToUpper(s)
+	if m == "GET" || m == "POST" || m == "PUT" || m == "PATCH" || m == "DELETE" {
+		return m
+	}
+	return ""
 }

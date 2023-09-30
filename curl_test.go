@@ -76,6 +76,17 @@ func TestMakeCurlArgs(t *testing.T) {
 			},
 			want: []string{"http://example.com?foo=%E3%81%82"},
 		},
+		{
+			desc: "form",
+			input: Request{
+				Url: "http://example.com",
+				Forms: []Form{
+					{"foo", "bar"},
+					{"baz", "1"},
+				},
+			},
+			want: []string{"--data-urlencode", "foo=bar", "--data-urlencode", "baz=1", "http://example.com"},
+		},
 	}
 
 	for _, tt := range tests {

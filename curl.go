@@ -17,6 +17,11 @@ func MakeCurlArgs(r Request) ([]string, error) {
 			args = append(args, "-d", string(j))
 		}
 	}
+	if r.Forms != nil {
+		for _, f := range r.Forms {
+			args = append(args, "--data-urlencode", MarshalForm(f))
+		}
+	}
 
 	args = append(args, makeUrl(r.Url, r.Queries))
 	return args, nil

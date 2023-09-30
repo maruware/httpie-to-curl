@@ -138,6 +138,17 @@ func TestParseHttpie(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "form",
+			args: []string{"http", "--form", "post", "http://example.com", "foo=bar"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Forms: []Form{
+					{Key: "foo", Value: "bar"},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
