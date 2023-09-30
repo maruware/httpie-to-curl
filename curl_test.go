@@ -45,6 +45,37 @@ func TestMakeCurlArgs(t *testing.T) {
 			},
 			want: []string{"-d", `{"baz":1,"foo":"bar"}`, "http://example.com"},
 		},
+		{
+			desc: "query",
+			input: Request{
+				Url: "http://example.com",
+				Queries: []Query{
+					{"foo", "bar"},
+					{"baz", "1"},
+				},
+			},
+			want: []string{"http://example.com?foo=bar&baz=1"},
+		},
+		{
+			desc: "query with space",
+			input: Request{
+				Url: "http://example.com",
+				Queries: []Query{
+					{"foo", "bar 1"},
+				},
+			},
+			want: []string{"http://example.com?foo=bar+1"},
+		},
+		{
+			desc: "query with japanese",
+			input: Request{
+				Url: "http://example.com",
+				Queries: []Query{
+					{"foo", "あ"},
+				},
+			},
+			want: []string{"http://example.com?foo=%E3%81%82"},
+		},
 	}
 
 	for _, tt := range tests {

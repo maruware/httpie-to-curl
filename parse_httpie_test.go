@@ -115,6 +115,17 @@ func TestParseHttpie(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "query",
+			args: []string{"http", "post", "http://example.com", "foo==bar"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Queries: []Query{
+					{Key: "foo", Value: "bar"},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -147,6 +158,14 @@ func TestParseHttpie(t *testing.T) {
 				t.Errorf("ParseHttpie(%v).Json = %v, want %v", tt.args, string(gotJsonStr), string(wantJsonStr))
 			}
 
+			if len(got.Queries) != len(tt.want.Queries) {
+				t.Errorf("ParseHttpie(%v).Queries = %v, want %v", tt.args, got.Queries, tt.want.Queries)
+			}
+			for k, v := range got.Queries {
+				if tt.want.Queries[k] != v {
+					t.Errorf("ParseHttpie(%v).Queries[%v] = %v, want %v", tt.args, k, v, tt.want.Queries[k])
+				}
+			}
 		})
 	}
 }

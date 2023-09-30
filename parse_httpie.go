@@ -16,6 +16,9 @@ var jsonFieldPattern = regexp.MustCompile(`(?P<key>[^=]+)=(?P<value>.*)`)
 // json non-string field pattern. e.g. age:=29, married:=false, hobbies:='["http", "pies"]', favorite:='{"tool": "HTTPie"}', bookmarks:=@files/data.json, description=@files/text.txt
 var jsonNonStringFieldPattern = regexp.MustCompile(`(?P<key>[^:]+):=(?P<value>.*)`)
 
+// query pattern. e.g. foo==bar
+var queryPattern = regexp.MustCompile(`(?P<key>[^=]+)==(?P<value>.*)`)
+
 // parse httpie args
 func ParseHttpie(args []string) Request {
 	r := Request{}
@@ -30,6 +33,15 @@ func ParseHttpie(args []string) Request {
 		}
 		if strings.HasPrefix(arg, "http://") || strings.HasPrefix(arg, "https://") {
 			r.Url = arg
+			continue
+		}
+
+		if queryPattern.Match([]byte(arg)) {
+			if r.Queries == nil {
+				r.Queries = []Query{}
+			}
+			matches := queryPattern.FindStringSubmatch(arg)
+			r.Queries = append(r.Queries, Query{Key: matches[1], Value: matches[2]})
 			continue
 		}
 
