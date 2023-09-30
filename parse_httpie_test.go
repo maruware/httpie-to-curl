@@ -126,6 +126,18 @@ func TestParseHttpie(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "multiple queries",
+			args: []string{"http", "post", "http://example.com", "foo==bar", "bar==baz"},
+			want: Request{
+				Method: "POST",
+				Url:    "http://example.com",
+				Queries: []Query{
+					{Key: "foo", Value: "bar"},
+					{Key: "bar", Value: "baz"},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
