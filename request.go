@@ -12,12 +12,18 @@ type Query struct {
 	Value string
 }
 
+type Form struct {
+	Key   string
+	Value string
+}
+
 type Request struct {
 	Method  string
 	Url     string
 	Headers []Header
 	Json    map[string]any
 	Queries []Query
+	Forms   []Form
 }
 
 func MarshalQuery(q Query) string {
@@ -39,4 +45,8 @@ func MarshalQueries(queries []Query) string {
 		q += MarshalQuery(query)
 	}
 	return q
+}
+
+func MarshalForm(f Form) string {
+	return f.Key + "=" + f.Value
 }
