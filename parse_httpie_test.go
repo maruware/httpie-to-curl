@@ -1,8 +1,9 @@
 package httpietocurl
 
 import (
-	"encoding/json"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParseHttpie(t *testing.T) {
@@ -102,6 +103,9 @@ func TestParseHttpie(t *testing.T) {
 				Json: map[string]any{
 					"foo": "bar",
 				},
+				Headers: []Header{
+					{Key: "Content-Type", Value: "application/json"},
+				},
 			},
 		},
 		{
@@ -112,6 +116,9 @@ func TestParseHttpie(t *testing.T) {
 				Url:    "http://example.com",
 				Json: map[string]any{
 					"foo": 1,
+				},
+				Headers: []Header{
+					{Key: "Content-Type", Value: "application/json"},
 				},
 			},
 		},
@@ -160,35 +167,10 @@ func TestParseHttpie(t *testing.T) {
 			if got.Url != tt.want.Url {
 				t.Errorf("ParseHttpie(%v).Url = %v, want %v", tt.args, got.Url, tt.want.Url)
 			}
-			if len(got.Headers) != len(tt.want.Headers) {
-				t.Errorf("ParseHttpie(%v).Headers = %v, want %v", tt.args, got.Headers, tt.want.Headers)
-			}
-			for k, v := range got.Headers {
-				if tt.want.Headers[k] != v {
-					t.Errorf("ParseHttpie(%v).Headers[%v] = %v, want %v", tt.args, k, v, tt.want.Headers[k])
-				}
-			}
-			gotJsonStr, err1 := json.Marshal(got.Json)
-			if err1 != nil {
-				t.Errorf("Failed to marshal got json: %v", err1)
-			}
-			wantJsonStr, err2 := json.Marshal(tt.want.Json)
-			if err2 != nil {
-				t.Errorf("Failed to marshal want json: %v", err2)
-			}
-
-			if string(gotJsonStr) != string(wantJsonStr) {
-				t.Errorf("ParseHttpie(%v).Json = %v, want %v", tt.args, string(gotJsonStr), string(wantJsonStr))
-			}
-
-			if len(got.Queries) != len(tt.want.Queries) {
-				t.Errorf("ParseHttpie(%v).Queries = %v, want %v", tt.args, got.Queries, tt.want.Queries)
-			}
-			for k, v := range got.Queries {
-				if tt.want.Queries[k] != v {
-					t.Errorf("ParseHttpie(%v).Queries[%v] = %v, want %v", tt.args, k, v, tt.want.Queries[k])
-				}
-			}
+			assert.Equal(t, tt.want.Headers, got.Headers)
+			assert.Equal(t, tt.want.Json, got.Json)
+			assert.Equal(t, tt.want.Forms, got.Forms)
+			assert.Equal(t, tt.want.Queries, got.Queries)
 		})
 	}
 }
