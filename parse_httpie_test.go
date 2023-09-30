@@ -15,54 +15,48 @@ func TestParseHttpie(t *testing.T) {
 			desc: "basic",
 			args: []string{"http", "GET", "http://example.com"},
 			want: Request{
-				Method:  "GET",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "GET",
+				Url:    "http://example.com",
 			},
 		},
 		{
 			desc: "lowercase method",
 			args: []string{"http", "get", "http://example.com"},
 			want: Request{
-				Method:  "GET",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "GET",
+				Url:    "http://example.com",
 			},
 		},
 		{
 			desc: "post",
 			args: []string{"http", "post", "http://example.com"},
 			want: Request{
-				Method:  "POST",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "POST",
+				Url:    "http://example.com",
 			},
 		},
 		{
 			desc: "put",
 			args: []string{"http", "put", "http://example.com"},
 			want: Request{
-				Method:  "PUT",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "PUT",
+				Url:    "http://example.com",
 			},
 		},
 		{
 			desc: "delete",
 			args: []string{"http", "delete", "http://example.com"},
 			want: Request{
-				Method:  "DELETE",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "DELETE",
+				Url:    "http://example.com",
 			},
 		},
 		{
 			desc: "patch",
 			args: []string{"http", "patch", "http://example.com"},
 			want: Request{
-				Method:  "PATCH",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "PATCH",
+				Url:    "http://example.com",
 			},
 		},
 		{
@@ -71,8 +65,8 @@ func TestParseHttpie(t *testing.T) {
 			want: Request{
 				Method: "GET",
 				Url:    "http://example.com",
-				Headers: map[string]string{
-					"X-Test": "1",
+				Headers: []Header{
+					{Key: "X-Test", Value: "1"},
 				},
 			},
 		},
@@ -82,9 +76,9 @@ func TestParseHttpie(t *testing.T) {
 			want: Request{
 				Method: "GET",
 				Url:    "http://example.com",
-				Headers: map[string]string{
-					"X-Test":  "1",
-					"X-Test2": "2",
+				Headers: []Header{
+					{Key: "X-Test", Value: "1"},
+					{Key: "X-Test2", Value: "2"},
 				},
 			},
 		},
@@ -94,8 +88,8 @@ func TestParseHttpie(t *testing.T) {
 			want: Request{
 				Method: "GET",
 				Url:    "http://example.com",
-				Headers: map[string]string{
-					"X-Test": "1 2",
+				Headers: []Header{
+					{Key: "X-Test", Value: "1 2"},
 				},
 			},
 		},
@@ -103,9 +97,8 @@ func TestParseHttpie(t *testing.T) {
 			desc: "json string field",
 			args: []string{"http", "post", "http://example.com", "foo=bar"},
 			want: Request{
-				Method:  "POST",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "POST",
+				Url:    "http://example.com",
 				Json: map[string]any{
 					"foo": "bar",
 				},
@@ -115,9 +108,8 @@ func TestParseHttpie(t *testing.T) {
 			desc: "json non-string int field",
 			args: []string{"http", "post", "http://example.com", "foo:=1"},
 			want: Request{
-				Method:  "POST",
-				Url:     "http://example.com",
-				Headers: map[string]string{},
+				Method: "POST",
+				Url:    "http://example.com",
 				Json: map[string]any{
 					"foo": 1,
 				},

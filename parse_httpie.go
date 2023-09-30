@@ -18,9 +18,7 @@ var jsonNonStringFieldPattern = regexp.MustCompile(`(?P<key>[^:]+):=(?P<value>.*
 
 // parse httpie args
 func ParseHttpie(args []string) Request {
-	r := Request{
-		Headers: map[string]string{},
-	}
+	r := Request{}
 	for _, arg := range args {
 		if arg == "http" {
 			continue
@@ -55,7 +53,10 @@ func ParseHttpie(args []string) Request {
 
 		if headerPattern.Match([]byte(arg)) {
 			matches := headerPattern.FindStringSubmatch(arg)
-			r.Headers[matches[1]] = matches[2]
+			if r.Headers == nil {
+				r.Headers = []Header{}
+			}
+			r.Headers = append(r.Headers, Header{Key: matches[1], Value: matches[2]})
 			continue
 		}
 	}
