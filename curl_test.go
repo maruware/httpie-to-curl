@@ -1,6 +1,10 @@
 package httpietocurl
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestMakeCurlArgs(t *testing.T) {
 	tests := []struct {
@@ -95,14 +99,7 @@ func TestMakeCurlArgs(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if len(got) != len(tt.want) {
-				t.Fatalf("got %v, want %v", got, tt.want)
-			}
-			for i := range got {
-				if got[i] != tt.want[i] {
-					t.Fatalf("got %v, want %v", got, tt.want)
-				}
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

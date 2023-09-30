@@ -42,20 +42,15 @@ func ParseHttpie(args []string) Request {
 		}
 
 		if queryPattern.Match([]byte(arg)) {
-			if r.Queries == nil {
-				r.Queries = []Query{}
-			}
 			matches := queryPattern.FindStringSubmatch(arg)
-			r.Queries = append(r.Queries, Query{Key: matches[1], Value: matches[2]})
+			r.AddQuery(Query{Key: matches[1], Value: matches[2]})
 			continue
 		}
 
 		if jsonNonStringFieldPattern.Match([]byte(arg)) {
-			if r.Json == nil {
-				r.Json = map[string]any{}
-			}
 			matches := jsonNonStringFieldPattern.FindStringSubmatch(arg)
-			r.Json[matches[1]] = parseJsonNonStringValue(matches[2])
+			r.AddJsonField(matches[1], parseJsonNonStringValue(matches[2]))
+			r.AddHeader(Header{Key: "Content-Type", Value: "application/json"})
 			continue
 		}
 
@@ -63,26 +58,17 @@ func ParseHttpie(args []string) Request {
 			matches := dataFieldPattern.FindStringSubmatch(arg)
 
 			if isForm {
-				if r.Forms == nil {
-					r.Forms = []Form{}
-				}
-				r.Forms = append(r.Forms, Form{Key: matches[1], Value: matches[2]})
+				r.AddForm(Form{Key: matches[1], Value: matches[2]})
 			} else {
-				if r.Json == nil {
-					r.Json = map[string]any{}
-				}
-				r.Json[matches[1]] = matches[2]
+				r.AddJsonField(matches[1], matches[2])
+				r.AddHeader(Header{Key: "Content-Type", Value: "application/json"})
 			}
-
 			continue
 		}
 
 		if headerPattern.Match([]byte(arg)) {
 			matches := headerPattern.FindStringSubmatch(arg)
-			if r.Headers == nil {
-				r.Headers = []Header{}
-			}
-			r.Headers = append(r.Headers, Header{Key: matches[1], Value: matches[2]})
+			r.AddHeader(Header{Key: matches[1], Value: matches[2]})
 			continue
 		}
 	}
@@ -92,7 +78,7 @@ func ParseHttpie(args []string) Request {
 
 func parseJsonNonStringValue(s string) interface{} {
 	// int
-	if v, err := strconv.ParseInt(s, 0, 64); err == nil {
+	if v, err := strconv.Atoi(s); err == nil {
 		return v
 	}
 	// float

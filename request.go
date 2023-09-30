@@ -50,3 +50,40 @@ func MarshalQueries(queries []Query) string {
 func MarshalForm(f Form) string {
 	return f.Key + "=" + f.Value
 }
+
+func (r *Request) AddHeader(h Header) {
+	if r.Headers == nil {
+		r.Headers = []Header{}
+	}
+
+	// overwrite if header already exists
+	for i, header := range r.Headers {
+		if header.Key == h.Key {
+			r.Headers[i] = h
+			return
+		}
+	}
+
+	r.Headers = append(r.Headers, h)
+}
+
+func (r *Request) AddJsonField(key string, value any) {
+	if r.Json == nil {
+		r.Json = map[string]any{}
+	}
+	r.Json[key] = value
+}
+
+func (r *Request) AddQuery(q Query) {
+	if r.Queries == nil {
+		r.Queries = []Query{}
+	}
+	r.Queries = append(r.Queries, q)
+}
+
+func (r *Request) AddForm(f Form) {
+	if r.Forms == nil {
+		r.Forms = []Form{}
+	}
+	r.Forms = append(r.Forms, f)
+}
