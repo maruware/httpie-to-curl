@@ -17,6 +17,11 @@ func MakeCurlArgs(r Request) ([]string, error) {
 			args = append(args, "-d", string(j))
 		}
 	}
-	args = append(args, r.Url)
+
+	args = append(args, makeUrl(r.Url, r.Queries))
 	return args, nil
+}
+
+func makeUrl(url string, queries []Query) string {
+	return url + MarshalQueries(queries)
 }
