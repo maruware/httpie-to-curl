@@ -1,6 +1,7 @@
 package httpietocurl
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -98,6 +99,30 @@ func TestParseHttpie(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc: "json string field",
+			args: []string{"http", "post", "http://example.com", "foo=bar"},
+			want: Request{
+				Method:  "POST",
+				Url:     "http://example.com",
+				Headers: map[string]string{},
+				Json: map[string]any{
+					"foo": "bar",
+				},
+			},
+		},
+		{
+			desc: "json non-string int field",
+			args: []string{"http", "post", "http://example.com", "foo:=1"},
+			want: Request{
+				Method:  "POST",
+				Url:     "http://example.com",
+				Headers: map[string]string{},
+				Json: map[string]any{
+					"foo": 1,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -109,6 +134,27 @@ func TestParseHttpie(t *testing.T) {
 			if got.Url != tt.want.Url {
 				t.Errorf("ParseHttpie(%v).Url = %v, want %v", tt.args, got.Url, tt.want.Url)
 			}
+			if len(got.Headers) != len(tt.want.Headers) {
+				t.Errorf("ParseHttpie(%v).Headers = %v, want %v", tt.args, got.Headers, tt.want.Headers)
+			}
+			for k, v := range got.Headers {
+				if tt.want.Headers[k] != v {
+					t.Errorf("ParseHttpie(%v).Headers[%v] = %v, want %v", tt.args, k, v, tt.want.Headers[k])
+				}
+			}
+			gotJsonStr, err1 := json.Marshal(got.Json)
+			if err1 != nil {
+				t.Errorf("Failed to marshal got json: %v", err1)
+			}
+			wantJsonStr, err2 := json.Marshal(tt.want.Json)
+			if err2 != nil {
+				t.Errorf("Failed to marshal want json: %v", err2)
+			}
+
+			if string(gotJsonStr) != string(wantJsonStr) {
+				t.Errorf("ParseHttpie(%v).Json = %v, want %v", tt.args, string(gotJsonStr), string(wantJsonStr))
+			}
+
 		})
 	}
 }

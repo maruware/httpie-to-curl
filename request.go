@@ -4,5 +4,5 @@ type Request struct {
 	Method  string
 	Url     string
 	Headers map[string]string
-	Json    interface{}
+	Json    map[string]any
 }
